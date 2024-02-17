@@ -1,6 +1,8 @@
 package ru.javarush.gortopan.cipher.actions;
 
 import ru.javarush.gortopan.cipher.components.Alphabet;
+import ru.javarush.gortopan.cipher.exceptions.MissingSourceFileException;
+import ru.javarush.gortopan.cipher.file.FilePathConstants;
 import ru.javarush.gortopan.cipher.file.FileUtils;
 
 import java.io.BufferedReader;
@@ -12,21 +14,20 @@ import java.util.TreeMap;
 public class StaticAnalysis extends AbstractAction {
     private static final String GET_SOURCE_FILE_MESSAGE = "Enter the source file to decrypt:";
     private static final String GET_DESTINATION_FILE_MESSAGE = "Enter the destination file to save decrypted text:";
-    private static final String GET_REPRESENTATION_FILE_MESSAGE = "Enter the representation file to analyze:";
     @Override
     public void execute() {
-        String sourceFile = getFile(GET_SOURCE_FILE_MESSAGE);
-        String destinationFile = getFile(GET_DESTINATION_FILE_MESSAGE);
-        String representationFile = getFile(GET_REPRESENTATION_FILE_MESSAGE);
+        BufferedReader[] sourceReaders = getFileReaders(GET_SOURCE_FILE_MESSAGE);
+        BufferedReader representationReader;
+        try {
+            representationReader = FileUtils.getReadBuffer(FilePathConstants.DICTIONARY);
+        } catch (MissingSourceFileException e) {
+            throw new RuntimeException(e);
+        }
+        BufferedWriter writer = getFileWriter(GET_DESTINATION_FILE_MESSAGE);
 
-        BufferedReader sourceReader = FileUtils.getReadBuffer(sourceFile);
-        BufferedReader sourceReaderAnalytics = FileUtils.getReadBuffer(sourceFile);
-        BufferedReader representationReader = FileUtils.getReadBuffer(representationFile);
-        BufferedWriter writer = FileUtils.getWriteBuffer(destinationFile);
+        int key = getProbabilityShift(representationReader, sourceReaders[0]);
+        process(sourceReaders[1], writer, key);
 
-        int key = getProbabilityShift(representationReader, sourceReaderAnalytics);
-
-        process(sourceReader, writer, key);
     }
 
     private int getProbabilityShift(BufferedReader representationReader, BufferedReader sourceReaderAnalytics) {
@@ -92,7 +93,7 @@ public class StaticAnalysis extends AbstractAction {
                 decryptedLine = decrypt(line, key);
                 writer.write(decryptedLine + System.lineSeparator());
                 writer.flush();
-            };
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -1,7 +1,5 @@
 package ru.javarush.gortopan.cipher.actions;
 
-import ru.javarush.gortopan.cipher.file.FileUtils;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,12 +11,9 @@ public class Decrypt extends AbstractAction {
     private static final String GET_KEY_MESSAGE = "Enter the decryption key:";
     @Override
     public void execute() {
-        String sourceFile = getFile(GET_SOURCE_FILE_MESSAGE);
-        String destinationFile = getFile(GET_DESTINATION_FILE_MESSAGE);
+        BufferedReader source = getFileReader(GET_SOURCE_FILE_MESSAGE);
+        BufferedWriter destination = getFileWriter(GET_DESTINATION_FILE_MESSAGE);
         int key = getKey(GET_KEY_MESSAGE);
-
-        BufferedReader source = FileUtils.getReadBuffer(sourceFile);
-        BufferedWriter destination = FileUtils.getWriteBuffer(destinationFile);
         process(source, destination, key);
 
     }
@@ -37,12 +32,10 @@ public class Decrypt extends AbstractAction {
                 decryptedLine = decrypt(line, key);
                 destination.write(decryptedLine + System.lineSeparator());
                 destination.flush();
-            };
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
-
 
 }

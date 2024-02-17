@@ -2,11 +2,11 @@ package ru.javarush.gortopan.cipher.enums;
 
 public enum Operation {
 
-    EXIT(0, "exit application"),
-    ENCRYPT(1, "encrypt text with key"),
-    DECRYPT(2, "decrypt text with key"),
-    BRUTEFORCE(3, "bruteforce decrypt without key"),
-    STATIC_ANALYSIS(4, "static analysis without key");
+    EXIT(0, "exit application", "Exit"),
+    ENCRYPT(1, "encrypt text with key", "Encryption"),
+    DECRYPT(2, "decrypt text with key", "Decryption"),
+    BRUTEFORCE(3, "bruteforce decrypt without key", "Bruteforce"),
+    STATIC_ANALYSIS(4, "static analysis without key", "Static analysis");
 
     public static final String COMMAND_PATTERN= "%d - %s";
 
@@ -14,9 +14,12 @@ public enum Operation {
 
     private final String description;
 
-    Operation(int command, String description) {
+    private final String action;
+
+    Operation(int command, String description, String action) {
         this.command = command;
         this.description = description;
+        this.action = action;
     }
 
     public int getCommand() {
@@ -25,6 +28,10 @@ public enum Operation {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getAction() {
+        return action;
     }
 
     public static Operation getOperation(int command) {

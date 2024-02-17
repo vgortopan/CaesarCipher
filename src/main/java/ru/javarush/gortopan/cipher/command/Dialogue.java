@@ -21,12 +21,13 @@ public class Dialogue {
                 operation = Operation.getOperation(operationNumber);
                 Action action = ActionFactory.create(operation);
                 action.execute();
+                System.out.println(operation.getAction() + " is finished");
                 if (operation == Operation.EXIT) {
                     keepRunning = false;
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Please select one of the options below!");
-            } catch (IllegalArgumentException e) {
+            } catch (RuntimeException e) {
                 System.out.println(e.getMessage());
             }
         } while (keepRunning);

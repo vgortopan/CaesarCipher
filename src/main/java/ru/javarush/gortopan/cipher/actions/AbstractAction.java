@@ -1,16 +1,60 @@
 package ru.javarush.gortopan.cipher.actions;
 
 import ru.javarush.gortopan.cipher.components.Alphabet;
+import ru.javarush.gortopan.cipher.exceptions.CreateNewFileException;
+import ru.javarush.gortopan.cipher.exceptions.MissingSourceFileException;
+import ru.javarush.gortopan.cipher.file.FileUtils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.util.Scanner;
 
 abstract public class AbstractAction implements Action {
 
     protected Scanner scanner = new Scanner(System.in);
 
-    protected String getFile(String message) {
+
+
+    private String getFile(String message) {
         System.out.println(message);
         return readString();
+    }
+
+    protected BufferedReader getFileReader(String message) {
+        BufferedReader reader = null;
+        try {
+            String fileName = getFile(message);
+            reader = FileUtils.getReadBuffer(fileName);
+        } catch (MissingSourceFileException exception) {
+            System.out.println(exception.getMessage());
+            getFileReader(message);
+        }
+        return reader;
+    }
+
+    protected BufferedReader[] getFileReaders(String message) {
+        BufferedReader[] reader = new BufferedReader[2];
+        try {
+            String fileName = getFile(message);
+            reader[0] = FileUtils.getReadBuffer(fileName);
+            reader[1] = FileUtils.getReadBuffer(fileName);
+        } catch (MissingSourceFileException exception) {
+            System.out.println(exception.getMessage());
+            getFileReaders(message);
+        }
+        return reader;
+    }
+
+    protected BufferedWriter getFileWriter(String message) {
+        BufferedWriter writer = null;
+        try {
+            String fileName = getFile(message);
+            writer = FileUtils.getWriteBuffer(fileName);
+        } catch (CreateNewFileException e) {
+            System.out.println(e.getMessage());
+            getFileWriter(message);
+        }
+        return writer;
     }
 
     protected int getKey(String message) {
@@ -41,7 +85,7 @@ abstract public class AbstractAction implements Action {
         char[] chars = source.toCharArray();
         int index;
         int newIndex;
-        String decrypted = "";
+        StringBuilder decrypted = new StringBuilder();
 
         for (char symbol : chars) {
             index = alphabet.getIndexFromChar(Character.toLowerCase(symbol));
@@ -49,8 +93,8 @@ abstract public class AbstractAction implements Action {
             if (newIndex < 0) {
                 newIndex = alphabet.size() + newIndex;
             }
-            decrypted += index == -1 ? symbol : alphabet.getCharFromIndex(newIndex);
+            decrypted.append(index == -1 ? symbol : alphabet.getCharFromIndex(newIndex));
         }
-        return decrypted;
+        return decrypted.toString();
     }
 }

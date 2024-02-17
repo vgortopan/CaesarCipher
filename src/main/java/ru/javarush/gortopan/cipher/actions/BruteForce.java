@@ -1,5 +1,7 @@
 package ru.javarush.gortopan.cipher.actions;
 
+import ru.javarush.gortopan.cipher.exceptions.MissingSourceFileException;
+import ru.javarush.gortopan.cipher.file.FilePathConstants;
 import ru.javarush.gortopan.cipher.file.FileUtils;
 
 import java.io.BufferedReader;
@@ -12,16 +14,16 @@ import java.util.StringTokenizer;
 public class BruteForce extends AbstractAction {
     private static final String GET_SOURCE_FILE_MESSAGE = "Enter the source file to decrypt:";
     private static final String GET_DESTINATION_FILE_MESSAGE = "Enter the destination file to save decrypted text:";
-    private static final String GET_REPRESENTATION_FILE_MESSAGE = "Enter the representation file to compare:";
     @Override
     public void execute() {
-        String sourceFile = getFile(GET_SOURCE_FILE_MESSAGE);
-        String destinationFile = getFile(GET_DESTINATION_FILE_MESSAGE);
-        String representationFile = getFile(GET_REPRESENTATION_FILE_MESSAGE);
-
-        BufferedReader sourceReader = FileUtils.getReadBuffer(sourceFile);
-        BufferedReader representationReader = FileUtils.getReadBuffer(representationFile);
-        BufferedWriter writer = FileUtils.getWriteBuffer(destinationFile);
+        BufferedReader sourceReader = getFileReader(GET_SOURCE_FILE_MESSAGE);
+        BufferedReader representationReader;
+        try {
+            representationReader = FileUtils.getReadBuffer(FilePathConstants.DICTIONARY);
+        } catch (MissingSourceFileException e) {
+            throw new RuntimeException(e);
+        }
+        BufferedWriter writer = getFileWriter(GET_DESTINATION_FILE_MESSAGE);
 
         Map<String, Integer> words = makeDictionary(representationReader);
 
@@ -32,7 +34,7 @@ public class BruteForce extends AbstractAction {
         try {
             String line;
             int key = 1;
-            String decryptedLine = "";
+            String decryptedLine;
 
             StringTokenizer tokenizer;
 
@@ -64,7 +66,7 @@ public class BruteForce extends AbstractAction {
                 } while (!matchedDict);
                 writer.write(decryptedLine + System.lineSeparator());
                 writer.flush();
-            };
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
