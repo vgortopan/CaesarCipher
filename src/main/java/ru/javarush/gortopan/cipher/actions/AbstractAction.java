@@ -1,6 +1,7 @@
 package ru.javarush.gortopan.cipher.actions;
 
 import ru.javarush.gortopan.cipher.components.Alphabet;
+import ru.javarush.gortopan.cipher.exceptions.AlphabetSizeException;
 import ru.javarush.gortopan.cipher.exceptions.CreateNewFileException;
 import ru.javarush.gortopan.cipher.exceptions.MissingSourceFileException;
 import ru.javarush.gortopan.cipher.file.FileUtils;
@@ -65,10 +66,17 @@ abstract public class AbstractAction implements Action {
     private int readInteger() {
         String value = readString();
         int i = 0;
+        Alphabet alphabet = new Alphabet();
         try {
             i = Integer.parseInt(value);
+            if (i < 0 || i > alphabet.size()) {
+                throw new AlphabetSizeException("Please enter a number between 0 and " + alphabet.size());
+            }
         } catch (NumberFormatException e) {
             System.out.println("Please enter a number:");
+            readInteger();
+        } catch (AlphabetSizeException e) {
+            System.out.println(e.getMessage());
             readInteger();
         }
         return i;
