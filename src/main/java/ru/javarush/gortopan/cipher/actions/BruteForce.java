@@ -14,6 +14,10 @@ import java.util.StringTokenizer;
 public class BruteForce extends AbstractAction {
     private static final String GET_SOURCE_FILE_MESSAGE = "Enter the source file to decrypt:";
     private static final String GET_DESTINATION_FILE_MESSAGE = "Enter the destination file to save decrypted text:";
+
+    private boolean matchedDict = false;
+
+    private int key = 1;
     @Override
     public void execute() {
         BufferedReader sourceReader = getFileReader(GET_SOURCE_FILE_MESSAGE);
@@ -33,43 +37,44 @@ public class BruteForce extends AbstractAction {
     private void process(BufferedReader sourceReader, BufferedWriter writer, Map<String, Integer> dict) {
         try {
             String line;
-            int key = 1;
             String decryptedLine;
 
-            StringTokenizer tokenizer;
-
-            boolean matchedDict = false;
             while (sourceReader.ready()) {
                 line = sourceReader.readLine();
 
                 if (line == null) {
                     line = "";
                 }
-
-                do {
-                    decryptedLine = decrypt(line, key);
-                    if (!matchedDict) {
-                        tokenizer = new StringTokenizer(decryptedLine);
-                        while (tokenizer.hasMoreTokens()) {
-                            String word = tokenizer.nextToken();
-                            if (word.length() > 2 && dict.containsKey(word)) {
-                                matchedDict = true;
-                                break;
-                            }
-                        }
-                        if (!matchedDict) {
-                            key++;
-                        }
-
-                    }
-
-                } while (!matchedDict);
+                decryptedLine = getDecryptedLine(line, dict);
                 writer.write(decryptedLine + System.lineSeparator());
                 writer.flush();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String getDecryptedLine(String line, Map<String, Integer> dict) {
+        String decryptedLine;
+        StringTokenizer tokenizer;
+        do {
+            decryptedLine = decrypt(line, key);
+            if (!matchedDict) {
+                tokenizer = new StringTokenizer(decryptedLine);
+                while (tokenizer.hasMoreTokens()) {
+                    String word = tokenizer.nextToken();
+                    if (word.length() > 2 && dict.containsKey(word)) {
+                        matchedDict = true;
+                    }
+                }
+                if (!matchedDict) {
+                    key++;
+                }
+            }
+        } while (!matchedDict);
+
+        return decryptedLine;
+
     }
 
     private Map<String, Integer> makeDictionary(BufferedReader representationReader) {

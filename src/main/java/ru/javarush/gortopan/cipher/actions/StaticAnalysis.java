@@ -49,7 +49,6 @@ public class StaticAnalysis extends AbstractAction {
 
     private char getMostFrequentChar(BufferedReader reader) {
         TreeMap<Character, Integer> map = new TreeMap<>();
-        Alphabet alphabet = new Alphabet();
         try {
             String line;
             while (reader.ready()) {
@@ -63,19 +62,23 @@ public class StaticAnalysis extends AbstractAction {
                     map.merge(Character.toLowerCase(c), 1, Integer::sum);
                 }
             }
-
-            int max = Integer.MIN_VALUE;
-            char symbol = '-';
-            for (Map.Entry<Character, Integer> entry : map.entrySet()) {
-                if (entry.getValue() > max && alphabet.getIndexFromChar(entry.getKey()) >= 0) {
-                    max = entry.getValue();
-                    symbol = entry.getKey();
-                }
-            }
-            return symbol;
+            return getMaxUsedFromMap(map);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private char getMaxUsedFromMap(TreeMap<Character, Integer> map) {
+        int max = Integer.MIN_VALUE;
+        char symbol = '-';
+        Alphabet alphabet = new Alphabet();
+        for (Map.Entry<Character, Integer> entry : map.entrySet()) {
+            if (entry.getValue() > max && alphabet.getIndexFromChar(entry.getKey()) >= 0) {
+                max = entry.getValue();
+                symbol = entry.getKey();
+            }
+        }
+        return symbol;
     }
 
 
