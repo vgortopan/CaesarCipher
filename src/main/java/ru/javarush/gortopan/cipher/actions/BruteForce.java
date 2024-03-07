@@ -49,9 +49,15 @@ public class BruteForce extends AbstractAction {
                 writer.write(decryptedLine + System.lineSeparator());
                 writer.flush();
             }
+            resetKey();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void resetKey() {
+        matchedDict = false;
+        key = 1;
     }
 
     private String getDecryptedLine(String line, Map<String, Integer> dict) {
